@@ -1,0 +1,30 @@
+name: Build Windows ARM64
+
+on:
+  workflow_dispatch: # Allows you to run this manually whenever you want
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x' # Uses the modern .NET version required by the repo
+
+    - name: Restore dependencies
+      run: dotnet restore PKHeX.sln
+
+    - name: Publish ARM64 Executable
+      run: |
+        dotnet publish PKHeX.WinForms/PKHeX.WinForms.csproj -c Release -r win-arm64 --self-contained true -p:PublishSingleFile=true -p:PublishReadyToRun=true -o ./build-output
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: PKHeX-Windows-ARM64
+        path: ./build-output/
